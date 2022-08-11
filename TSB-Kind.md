@@ -4,6 +4,8 @@ _Typically, TSB would be installed on at least 3 clusters for the management pla
 
 **TOC**
 - [Prereqs](#prereqs)
+- [Sync TSB Images](#sync-tsb-images)
+- [Install TSB](#install-tsb)
 
 
 ## Prereqs
@@ -41,11 +43,11 @@ EOF
 Install `tctl`, the following instructions are for mac, find instructions for linux [here](https://docs.tetrate.io/service-bridge/1.5.x/en-us/reference/cli/guide/index#installation).
 
 ```bash
-mkdir -p ~/.tctl/bin
-curl -Lo ~/.tctl/bin/tctl https://binaries.dl.tetrate.io/public/raw/versions/darwin-amd64-1.5.0/tctl
-chmod +x ~/.tctl/bin/tctl
-sudo xattr -r -d com.apple.quarantine ~/.tctl/bin/tctl
-export PATH=$PATH:~/.tctl/bin
+wget https://binaries.dl.tetrate.io/public/raw/versions/darwin-amd64-1.5.0/tctl
+mv tctl /usr/local/bin/tctl
+chmod +x /usr/local/bin/tctl
+sudo xattr -r -d com.apple.quarantine /usr/local/bin/tctl
+source <(tctl completion bash)
 ```
 
 Install `metallb` using the default manifests.
@@ -134,6 +136,52 @@ Commercial support is available at
 <p><em>Thank you for using nginx.</em></p>
 </body>
 </html>
+```
+
+## Sync TSB Images
+
+Now we need to download the necessary container images and push them into our person container repo. The `user-name` and `api-key` arguments must hold the Tetrate repository accounts details provided by Tetrate. The `registry` argument must point to your personal registry.
+
+```bash
+# this is your personal registry
+docker login docker.io -u cmwylie19
+
+tctl install image-sync --username <user-name> \
+    --apikey <api-key> --registry <registry-location>
+```
+
+
+## Install TSB
+
+The `tctl install demo` command will use the `current-context` from `kubeconfig`. Make sure it is pointing to the current conext before proceeding.
+
+Run the following command to start the install. You may provide your own admin password via `--admin-password` or one will be generated for you
+
+```bash
+tctl install demo \
+  --registry docker.io/cmwylie19 \
+  --admin-password password
+```
+
+**Fails pulling/pushing images**
+
+**Fails Installing Operators**
+
+```
+tctl install demo \
+  --registry docker.io/cmwylie19 \
+  --admin-password password
+ ✓ Installing operators... 
+ ✓ Waiting for CRDs to be registered by the operators... 
+ ✓ Installing Redis... 
+ ✓ Waiting for Deployments to become ready...
+ ✓ Installing Cert Manager... 
+ ✓ Waiting for Deployments to become ready...
+ ✓ Installing managementplane XCP certs... 
+ ✓ Installing Managementplane... 
+ ✓ Waiting for Deployments to become ready... 
+Configuring bridge address: 172.18.255.200:8443
+Error: unable to connect to TSB at 172.18.255.200:8443: time out trying to connection to TSB at 172.18.255.200:8443
 ```
 
 ## Clean Up
