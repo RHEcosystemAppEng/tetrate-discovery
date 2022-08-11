@@ -1,0 +1,14 @@
+apiVersion: authorization.onboarding.tetrate.io/v1alpha1
+kind: OnboardingPolicy
+metadata:
+  name: allow-aws-vms
+  namespace: ${TIER2_NS}
+spec:
+  allow:
+  - workloads:
+    - aws:
+        accounts:
+        - \"${AWS_ACCOUNT}\"
+        ec2: {}
+    onboardTo:
+    - workloadGroupSelector: {}

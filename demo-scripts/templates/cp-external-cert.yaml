@@ -1,0 +1,3 @@
+    internalCertProvider:
+      certManager:
+        managed: EXTERNAL

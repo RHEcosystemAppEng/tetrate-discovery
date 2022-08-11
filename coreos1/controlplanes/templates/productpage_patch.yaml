@@ -1,0 +1,9 @@
+spec:
+  template:
+    spec:
+      containers:
+      - name: productpage
+        image: docker.io/chirauki/productpage
+        env:
+        - name: DETAILS_HOSTNAME
+          value: details.cx.tetrate.info

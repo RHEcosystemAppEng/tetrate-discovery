@@ -1,0 +1,13 @@
+---
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  namespace: ${TIER1_NS}
+  name: tsb-gateway-${TIER1_NS}
+spec:
+  kubeSpec:
+    service:
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: \"nlb\"
+        service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: \"true\"
+      type: LoadBalancer

@@ -1,0 +1,10 @@
+apiVersion: api.tsb.tetrate.io/v2
+kind: Cluster
+metadata:
+  name: core-os-0-cp1
+  organization: coreos-0-org
+spec:
+  tokenTtl: 100000h
+  tier1Cluster: false
+  locality:
+    region: us-east-1

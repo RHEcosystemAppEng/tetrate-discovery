@@ -1,0 +1,10 @@
+---
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  namespace: ${TIER2_NS}
+  name: tsb-gateway-${TIER2_NS}
+spec:
+  kubeSpec:
+    service:
+      type: LoadBalancer

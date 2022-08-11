@@ -1,0 +1,29 @@
+---
+
+apiVersion: install.tetrate.io/v1alpha1
+kind: ManagementPlane
+metadata:
+  namespace: tsb
+  name: tsbmgmtplane
+spec:
+  hub: 192760260411.dkr.ecr.ca-central-1.amazonaws.com/cx-aws-demo-repo
+  imagePullSecrets:
+    - name: ca-central-1-ecr-registry
+  organization: coreos-0-org
+  components:
+    internalCertProvider:
+      certManager:
+        managed: INTERNAL
+    xcp:
+      centralAuthModes:
+        jwt: true
+        mutualTls: false
+  tokenIssuer:
+    jwt:
+      expiration: 3600s
+      issuers:
+      - name: https://jwt.tetrate.io
+        signingKey: private.key
+      refreshExpiration: 2592000s
+      tokenPruneInterval: 3600s
+      signingKeysSecret: token-issuer-key

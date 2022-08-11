@@ -1,0 +1,14 @@
+        {
+        \"Comment\": \"${DEPLOYMENT_NAME}\",
+        \"Changes\": [{
+                \"Action\": \"${OPERATION}\",
+                \"ResourceRecordSet\": {
+                        \"Name\": \"${FQDN}\",
+                        \"Type\": \"${RECORD_TYPE}\",
+                        \"TTL\": ${RECORD_TTL},
+                        \"ResourceRecords\": [{
+                                \"Value\": \"${RECORD_VALUE}\"
+                        }]
+                   }
+            }]
+        } 
