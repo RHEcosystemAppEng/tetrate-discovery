@@ -1,0 +1,8 @@
+spec:
+  telemetryStore:
+    elastic:
+      host: tsb-es-http.es
+      port: 9200
+      protocol: https
+      selfSigned: true
+      version: 7

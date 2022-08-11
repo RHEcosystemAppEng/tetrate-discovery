@@ -1,0 +1,21 @@
+apiVersion: install.tetrate.io/v1alpha1
+kind: ControlPlane
+metadata:
+  name: controlplane
+  namespace: istio-system
+spec:
+  hub: 192760260411.dkr.ecr.ca-central-1.amazonaws.com/cx-aws-demo-repo
+  imagePullSecrets:
+    - name: ca-central-1-ecr-registry  
+  telemetryStore:
+    elastic:
+      host: coreos-01.cx.tetrate.info:8443
+      port: 8443
+  managementPlane:
+    host: coreos-01.cx.tetrate.info:8443
+    port: 8443
+    clusterName: coreos-0
+    organization: coreos-0-org
+  components:
+    xcp:
+      centralAuthMode: JWT

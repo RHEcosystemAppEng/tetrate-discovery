@@ -1,0 +1,64 @@
+---
+apiversion: api.tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  name: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
+---
+apiversion: api.tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  tenant: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
+  name: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-ws
+spec:
+  namespaceSelector:
+    names:
+      - \""*/"$TIER1_NS\"
+      - \""*/"$TIER2_NS\"
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-gw-group 
+  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  tenant: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
+  workspace: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-ws
+spec:
+  configMode: BRIDGED
+  namespaceSelector:
+    names:
+      - \""*/"$TIER1_NS\"
+      - \""*/"$TIER2_NS\"
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: IngressGateway
+metadata:
+  name: ingress-bookinfo
+  workspace: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-ws
+  tenant: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
+  group: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-gw-group 
+  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+spec:
+  workloadSelector:
+    namespace: ${TIER2_NS}
+    labels:
+      app: tsb-gateway-${TIER2_NS}
+      istio: ingressgateway
+  http:
+  - name: bookinfo
+    port: 80
+    hostname: ${DEPLOYMENT_NAME}-bookinfo.${DNS_DOMAIN}
+    routing:
+      rules:
+      - route:
+          host: ${TIER2_NS}/productpage.${TIER2_NS}.svc.cluster.local
+          port: 9080
+  - name: details
+    port: 9080
+    hostname: details.cx.tetrate.info
+    routing:
+      rules:
+      - route:
+          host: ${TIER2_NS}/details.${TIER2_NS}.svc.cluster.local
+          port: 9080          

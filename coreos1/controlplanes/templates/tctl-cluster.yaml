@@ -1,0 +1,10 @@
+apiVersion: api.tsb.tetrate.io/v2
+kind: Cluster
+metadata:
+  name: ${CLUSTER}
+  organization: $ORG
+spec:
+  tokenTtl: "100000h"
+  tier1Cluster: ${isTier1}
+  locality:
+    region: $REGION

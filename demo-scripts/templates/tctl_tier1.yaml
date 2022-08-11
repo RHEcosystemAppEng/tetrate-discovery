@@ -1,0 +1,20 @@
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Tier1Gateway
+metadata:
+  name: bookinfo-tier1
+  group: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-gw-group 
+  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  tenant: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
+  workspace: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-ws
+spec:
+  workloadSelector:
+    namespace: $TIER1_NS
+    labels:
+      app: tsb-gateway-$TIER1_NS
+      istio: ingressgateway
+  externalServers:
+  - name: bookinfo
+    hostname: ${DEPLOYMENT_NAME}-bookinfo.${DNS_DOMAIN}
+    port: 80
+    tls: {}

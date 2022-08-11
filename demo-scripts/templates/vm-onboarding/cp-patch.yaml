@@ -1,0 +1,8 @@
+spec:
+  meshExpansion:
+    onboarding:
+      endpoint:
+        hosts:
+        - onboarding-endpoint.cx.tetrate.info
+        secretName: onboarding-endpoint-tls-cert
+      localRepository: {}

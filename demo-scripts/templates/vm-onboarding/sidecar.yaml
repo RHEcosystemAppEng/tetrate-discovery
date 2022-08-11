@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: bookinfo-ratings-no-iptables
+  namespace: ${TIER2_NS}
+spec:
+  workloadSelector:
+    labels:
+      app: ratings
+      class: vm
+  ingress:
+  - defaultEndpoint: 127.0.0.1:9080
+    port:
+      name: http
+      number: 9080
+      protocol: HTTP
+  egress:
+  - bind: 127.0.0.2
+    port:
+      number: 9080
+    hosts:
+    - ./*        

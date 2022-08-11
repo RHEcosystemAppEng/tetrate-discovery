@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: WorkloadGroup
+metadata:
+  name: ratings
+  namespace: ${TIER2_NS}
+  labels:
+    app: ratings
+spec:
+  template:
+    labels:
+      app: ratings
+      class: vm
+      cloud: aws
+    network: aws
+    serviceAccount: bookinfo-ratings
