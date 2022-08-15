@@ -85,7 +85,7 @@ function tctlClusterManifests() {
     exit 1
   fi
   eval "echo \"$(cat "$ROOT"/templates/tctl-cluster.yaml)\"" >/tmp/cp-cluster-"${CLUSTER}".yaml
-  tctl apply -f /tmp/cp-cluster-"${CLUSTER}".yaml >/dev/null
+  # tctl apply -f /tmp/cp-cluster-"${CLUSTER}".yaml >/dev/null
   tctl install manifest cluster-operator --registry "$REPO" >/tmp/cp-"${CLUSTER}".yaml
   connectToCluster "${MP_CLUSTER}"
   tctl install cluster-service-account \
