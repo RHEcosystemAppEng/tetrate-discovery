@@ -15,7 +15,7 @@ export clusterNumber=${MP_CLUSTER}
 export clusterlabel="tsb-mp-cp"
 
 # if [[ ${CLUSTER_PLATFORM[$clusterNumber]} =~ ^(amazon|aws)$ ]]; then
-#     DNS_RECORD_TYPE="CNAME"
+    DNS_RECORD_TYPE="CNAME"
 #     echo "Deploying AWS Cluster which will serve as a Management Plane"
 #     createAWSCluster "${CLUSTER_LIST[$clusterNumber]}" "${REGION_LIST[$clusterNumber]}" "m5.xlarge" 4 ${clusterlabel} "site-${clusterNumber}"
 # elif [[ ${CLUSTER_PLATFORM[$clusterNumber]} == "gcp" ]]; then
