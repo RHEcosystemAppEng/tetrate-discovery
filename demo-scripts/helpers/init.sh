@@ -21,3 +21,4 @@ else
 fi
 
 source ~/credentials.env
+
