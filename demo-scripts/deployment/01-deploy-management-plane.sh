@@ -156,7 +156,7 @@ echo ==========================
 echo TSB UI Access
 echo --------------------------
 echo
-echo https://tsb."$OCP_DOMAIN":8443
+echo https://tsb."$OCP_DOMAIN"
 echo
 echo Credentials are admin/"$TSB_ADMIN_PASS"
 echo
