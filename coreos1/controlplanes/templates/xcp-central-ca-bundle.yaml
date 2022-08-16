@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: xcp-central-ca-bundle
-  namespace: istio-system
-type: Opaque
-data:
-  ca.crt: \"${CA_CERT}\"

@@ -50,7 +50,7 @@ fi
 
 echo "this script doesn't deploy anything but creates valid yamls for the cluster"
 
-tctlClusterManifests "${CLUSTER}" "${REGION}" "docker.io/cmwylie19" ${isTier1GW} "${ORG}"
+tctlClusterManifests "${CLUSTER}" "${REGION}" "docker.io/cmwylie19" ${isTier1GW} 
 if ${ECK_STACK_ENABLED}; then
 read -r -d '' ES_STRING << EOM
 # ca.crt and Elastic for FrontEnovy Elasticsearch
