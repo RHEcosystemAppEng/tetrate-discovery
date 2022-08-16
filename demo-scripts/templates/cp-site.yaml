@@ -13,4 +13,4 @@ spec:
     host: $DEPLOYMENT_NAME-tsb.$DNS_DOMAIN
     port: 8443
     clusterName: $CLUSTER
-    organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+    organization: $ORG

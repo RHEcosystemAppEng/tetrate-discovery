@@ -2,13 +2,13 @@
 apiversion: api.tsb.tetrate.io/v2
 kind: Tenant
 metadata:
-  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  organization: $ORG
   name: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
 ---
 apiversion: api.tsb.tetrate.io/v2
 kind: Workspace
 metadata:
-  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  organization: $ORG
   tenant: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
   name: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-ws
 spec:
@@ -21,7 +21,7 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-gw-group 
-  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  organization: $ORG
   tenant: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
   workspace: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-ws
 spec:
@@ -38,7 +38,7 @@ metadata:
   workspace: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-ws
   tenant: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
   group: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-gw-group 
-  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  organization: $ORG
 spec:
   workloadSelector:
     namespace: ${TIER2_NS}
