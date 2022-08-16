@@ -4,7 +4,7 @@ kind: Tier1Gateway
 metadata:
   name: bookinfo-tier1
   group: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-gw-group 
-  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  organization: $ORG
   tenant: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-tenant
   workspace: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-ws
 spec:

@@ -1,3 +1,4 @@
 credentials.env
-demo-scripts/variables/coreos.env
+demo-scripts/variables/
 petr-files/*
+demo-scripts/helpers/tsb/
