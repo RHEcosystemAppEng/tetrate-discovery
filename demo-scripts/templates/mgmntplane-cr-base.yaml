@@ -6,4 +6,4 @@ metadata:
   name: tsbmgmtplane
 spec:
   hub: $REPO_MP
-  organization: $DEPLOYMENT_TYPE-$DEPLOYMENT_NAME-org
+  organization: $ORG
