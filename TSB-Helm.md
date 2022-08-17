@@ -347,7 +347,7 @@ EOF
 ## Clean Up
 
 ```
-k delete svc,deploy,sts,rs,cm,pvc,sa,secret,po,job,role,rolebinding -n tsb --all --force --grace-period=0;
+k delete svc,deploy,sts,rs,cm,pvc,sa,secret,po,job,role,rolebinding,hpa -n tsb --all --force --grace-period=0;
 
 kubectl delete ns tsb;
 
