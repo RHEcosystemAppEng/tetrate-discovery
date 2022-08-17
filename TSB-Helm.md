@@ -66,8 +66,8 @@ tctl install manifest management-plane-secrets  -y  \
 --elastic-username admin \
 --postgres-password password \
 --postgres-username admin \
---tsb-admin-password password \
---xcp-certs |  kubectl apply -f -
+--tsb-admin-password password | kubectl apply -f -
+# --xcp-certs |  kubectl apply -f -
 
 # --xcp-certs https://docs.tetrate.io/service-bridge/1.5.x/en-us/setup/self_managed/management-plane-installation
 ```
@@ -347,9 +347,15 @@ EOF
 ## Clean Up
 
 ```
-k delete svc,deploy,sts,rs,cm,pvc,sa,secret,po,job,role,rolebinding -n tsb --all --force --grace-period=0;
+k delete svc,deploy,sts,rs,cm,pvc,sa,secret,po,job,role,rolebinding,hpa -n tsb --all --force --grace-period=0;
 
 kubectl delete ns tsb;
+
+k get clusterrolebinding | grep tsb | awk '{print $1}' | xargs kubectl delete clusterrolebinding
+
+k get clusterrole | grep tsb | awk '{print $1}' | xargs kubectl delete clusterrole  
+
+ k get crd | grep cert | awk '{print $1}' | xargs kubectl delete crd         
 
 k delete svc,deploy,sts,rs,cm,pvc,sa,secret,po,job,role,rolebinding -n cert-manager --all --force --grace-period=0;
 

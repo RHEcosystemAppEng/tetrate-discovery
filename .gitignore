@@ -2,3 +2,10 @@ credentials.env
 demo-scripts/variables/
 petr-files/*
 demo-scripts/helpers/tsb/
+
+# No tls manifests in the repo
+*.key
+*.crt
+*.pem
+*.cnf
+*.csr
