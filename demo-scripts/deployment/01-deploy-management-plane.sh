@@ -53,13 +53,13 @@ if ! kubectl -n "$TSB_NS" rollout status deployment/envoy 2>/dev/null; then
     --postgres-username tsb \
     --tsb-admin-password "$TSB_ADMIN_PASS" \
     --allow-defaults \
-    >/tmp/mp-secrets-"$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME".yaml
+    >/tmp/mp-secrets-"$ORG".yaml
     
     if [ $JWT = "true" ]; then
         kubectl delete secret -n "$TSB_NS" mpc-certs 2>/dev/null
     fi
     createPrivateJWTSigner
-    kubectl apply -f /tmp/mp-secrets-"$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME".yaml 2>/dev/null
+    kubectl apply -f /tmp/mp-secrets-"$ORG".yaml 2>/dev/null
     
     kubectl delete secret -n "$TSB_NS" tsb-certs 2>/dev/null
     echo "Generating TSB FrontEnvoy Self-Signed Certificates"
@@ -143,14 +143,14 @@ else
     echo "tctl settings are successfully applied"
 fi
 
-oc create route -n tsb passthrough --hostname=tsb."$OCP_DOMAIN" --service=envoy --insecure-policy=Redirect --port=https-ingress
+oc create route -n tsb passthrough --hostname=tsb."$OCP_DOMAIN" --service=envoy --insecure-policy=Redirect --port=https-ingress --port=
 
-echo ==========================
-echo ***  please point Public DNS *** per following:
-echo FQDN - tsb."$OCP_DOMAIN" 
-echo forwards to $TCCIP 
-echo ==========================
-echo After DNS is forwarding correctly - you can access TSB via below:
+# echo ==========================
+# echo ***  please point Public DNS *** per following:
+# echo FQDN - tsb."$OCP_DOMAIN" 
+# echo forwards to $TCCIP 
+# echo ==========================
+# echo After DNS is forwarding correctly - you can access TSB via below:
 
 echo ==========================
 echo TSB UI Access
