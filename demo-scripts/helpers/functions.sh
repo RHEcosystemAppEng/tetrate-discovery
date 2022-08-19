@@ -65,24 +65,24 @@ function tctlCLIConfig() {
         FQDN="${DEPLOYMENT_NAME}"-tsb."${DNS_DOMAIN}"
     fi
     
-    tctl config clusters set "$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME"-cluster --bridge-address "${FQDN}":8443 --tls-insecure
-    tctl config users set "$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME"-admin \
-    --org "$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME"-org \
-    --tenant "$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME"-tenant \
+    tctl config clusters set "$ORG"-cluster --bridge-address "${FQDN}":8443 --tls-insecure
+    tctl config users set "$ORG"-admin \
+    --org "$ORG" \
+    --tenant "$ORG"-tenant \
     --username admin --password "$TSB_ADMIN_PASS"
-    tctl config profiles set "$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME"-profile \
-    --cluster "$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME"-cluster \
-    --username "$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME"-admin
-    tctl config profiles set-current "$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME"-profile
+    tctl config profiles set "$ORG"-profile \
+    --cluster "$ORG"-cluster \
+    --username "$ORG"-admin
+    tctl config profiles set-current "$ORG"-profile
 }
 function tctlClusterManifests() {
     CLUSTER=$1
     REGION=$2
     REPO=$3
     isTier1=$4
-
     
-    if ! tctl config profiles set-current "$DEPLOYMENT_TYPE"-"$DEPLOYMENT_NAME"-profile; then
+    
+    if ! tctl config profiles set-current "$ORG"-profile; then
         echo "can't connect to TSB with tctl" >&2
         exit 1
     fi
@@ -106,6 +106,25 @@ function tctlClusterManifests() {
         export ES_FQDN
         eval "echo \"$(cat "$ROOT"/templates/cp-site-eck.yaml)\"" >/tmp/cp-site-"${CLUSTER}".yaml
     else
+        if [[ ${CLUSTER_PLATFORM[$MP_CLUSTER]} =~ ^(oc|openshift|ocp)$ ]]; then
+            if ! oc login https://api.${CLUSTER_LIST[$MP_CLUSTER]}.${DNS_DOMAIN}:6443 -u kubeadmin -p ${OC_PASSWORDS[$MP_CLUSTER]}; then
+                echo "cannot connect to the cluster" >&2
+                exit 1
+            fi
+            TCCIP=$(getTCCIP)
+            while [[ -z ${TCCIP} ]]; do
+                TCCIP=$(getTCCIP)
+                sleep 5
+            done
+            BRIDGE_ADDRESS_LB="$TCCIP"
+            OCP_DOMAIN=$(oc get ingresses.config/cluster -o jsonpath={.spec.domain})
+            BRIDGE_ADDRESS_TSB=tsb."$OCP_DOMAIN"
+            PORT_LB="8443"
+            PORT_TSB="443"
+        else
+            BRIDGE_ADDRESS="${DEPLOYMENT_NAME}"-tsb."${DNS_DOMAIN}"
+            PORT="8443"
+        fi
         eval "echo \"$(cat "$ROOT"/templates/cp-site.yaml)\"" >/tmp/cp-site-"${CLUSTER}".yaml
         tctl install manifest control-plane-secrets --cluster "$CLUSTER" \
         --cluster-service-account="$(cat /tmp/cluster-$CLUSTER-service-account.jwk)" \

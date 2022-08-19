@@ -4,6 +4,10 @@ kubectl patch managementplanes.install.tetrate.io tsbmgmtplane -n tsb \
 --patch "$(cat templates/mp-jwt-support.yaml)" \
 --type merge
 
+kubectl patch managementplanes.install.tetrate.io tsbmgmtplane -n tsb \
+--patch "$(cat templates/mp-webui-image.yaml)" \
+--type merge
+
 kubectl -n istio-system create secret generic xcp-central-ca-bundle --from-file=ca.crt=/tmp/ca.crt
 
 kubectl patch controlplanes.install.tetrate.io controlplane -n istio-system \
