@@ -1,0 +1,23 @@
+  components:
+    xcp:
+      centralAuthMode: JWT
+      kubeSpec:
+        overlays:
+        - apiVersion: install.xcp.tetrate.io/v1alpha1
+          kind: EdgeXcp
+          name: edge-xcp
+          patches:
+          - path: spec.centralAuthJwt.centralSni
+            value: central.xcp.tetrate.io
+    oap:
+      kubeSpec:
+        overlays:
+        - apiVersion: apps/v1
+          kind: Deployment
+          name: oap-deployment
+          patches:
+          - path: spec.template.spec.initContainers.[name:wait-for-elasticsearch].command
+            value:
+              - sh
+              - -c
+              - echo Openshift temporary patch && exit 0

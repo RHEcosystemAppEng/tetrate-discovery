@@ -134,7 +134,6 @@ fi
 # updateRoute53 "${DEPLOYMENT_NAME}"-tsb."${DNS_DOMAIN}" "$TCCIP" ${DNS_RECORD_TYPE}
 sleep 60
 tctlCLIConfig $TCCIP
-createTrafficGenerator
 
 if ! tctl apply -f /tmp/tctl.yaml; then
     echo "tctl constructs are not applied!"
@@ -143,7 +142,7 @@ else
     echo "tctl settings are successfully applied"
 fi
 
-oc create route -n tsb passthrough --hostname=tsb."$OCP_DOMAIN" --service=envoy --insecure-policy=Redirect --port=https-ingress --port=
+oc create route -n tsb passthrough --hostname=tsb."$OCP_DOMAIN" --service=envoy --insecure-policy=Redirect --port=https-ingress
 
 # echo ==========================
 # echo ***  please point Public DNS *** per following:
