@@ -7,10 +7,12 @@ spec:
   hub: $REPO
   telemetryStore:
     elastic:
-      host: $DEPLOYMENT_NAME-tsb.$DNS_DOMAIN
-      port: 8443
+      host: $BRIDGE_ADDRESS_TSB
+      port: $PORT_TSB
+      selfSigned: true
   managementPlane:
-    host: $DEPLOYMENT_NAME-tsb.$DNS_DOMAIN
-    port: 8443
+    host: $BRIDGE_ADDRESS_LB
+    port: $PORT_LB
     clusterName: $CLUSTER
     organization: $ORG
+    selfSigned: true

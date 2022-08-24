@@ -1,0 +1,11 @@
+  components:
+    webUI:
+      kubeSpec:
+        overlays:
+        - apiVersion: apps/v1
+          kind: Deployment
+          name: web
+          patches:
+          - path: spec.template.spec.containers.[name:web].image
+            value: mcallisterpetr/web-ui:1.5.0-oc
+          

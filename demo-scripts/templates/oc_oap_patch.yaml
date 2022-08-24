@@ -1,0 +1,12 @@
+    oap:
+      kubeSpec:
+        overlays:
+        - apiVersion: apps/v1
+          kind: Deployment
+          name: oap-deployment
+          patches:
+          - path: spec.template.spec.initContainers.[name:wait-for-elasticsearch].command
+            value:
+              - sh
+              - -c
+              - echo Openshift temporary patch && exit 0
