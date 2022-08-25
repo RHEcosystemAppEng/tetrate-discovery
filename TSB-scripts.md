@@ -4,6 +4,7 @@
 - [Script Prereqs](#script-prereqs)
 - [Management Plane](#management-plane)
 - [Control Plane](#control-plane)
+- [Clean Up](#clean-up)
 
 ## Sync Images
 
@@ -25,32 +26,13 @@ Configure `demo-scripts/variables/coreos.env`
 - line 27 should be the OCP kubeadmin passwords in an array.
 
 
-
 ## Management Plane
-
-The script handles the cert creation, if you were manually configuring the cert, this command would generate the cert for the envoy service in `tsb`
-
-```bash
-OCP_DOMAIN=$(oc get ingresses.config/cluster -o jsonpath={.spec.domain})
-
-./gen-cert.sh envoy-tsb envoy-tsb.$OCP_DOMAIN .
-```
-
-Deploy Management Plane
-```bash
-# (If this command hangs, then delete the clusterissuer)
-./demo-scripts/deployment/01-deploy-management-plane.sh coreos
-```
-
 
 Check UI in browser. If you are unable to see the Envoy service in the browser. Type "thisisunsafe" in the chrome browser to see UI.
 
 ```bash
 kubectl get route envoy -n tsb --template='{{ .spec.host }}'
 ```
-
-
-
 
 
 ## Control Plane
