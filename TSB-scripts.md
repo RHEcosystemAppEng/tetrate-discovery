@@ -28,10 +28,10 @@ Configure `demo-scripts/variables/coreos.env`
 
 ## Management Plane
 
-Check UI in browser. If you are unable to see the Envoy service in the browser. Type "thisisunsafe" in the chrome browser to see UI.
-
+Deploy Management Plane and create the `tsb-certs` secret
 ```bash
-kubectl get route envoy -n tsb --template='{{ .spec.host }}'
+# (If this command hangs, then delete the clusterissuer)
+./demo-scripts/deployment/01-deploy-management-plane.sh coreos
 ```
 
 
@@ -46,8 +46,94 @@ sudo cat /tmp/command-tetrate-mp-cp.sh
 # apply this ^
 ```
 
+If you get an error in the tsb operator in  istio-system
+
+```
+2022-09-01T18:42:17.635024Z     error   controller.controlplane-controller      Reconciler error        {"name": "controlplane", "namespace": "istio-system", "error": "cert-manager already installed but not owned by tsb operator. Try setting managed: EXTERNAL"}
+```
+
+
+Do this:
+
+```bash
+kubectl -n istio-system patch controlplanes.install.tetrate.io controlplane --type='json' -p='[{"op": "add", "path": "/spec/components/internalCertProvider/certManager", "value": {"managed": "EXTERNAL"}}]'
+```
 
 ## Clean Up
+
+Data Planes take care of deploying ingress gateways, step one is to delete all the `IngressGateways`:
+
+```bash
+kubectl delete ingressgateways.install.tetrate.io \
+    --all --all-namespaces
+```
+
+To gracefully remove the `istio-operator` deployment, scale and delete remaining objects in the data plane operator namespace:
+
+```bash
+kubectl -n istio-gateway scale deployment \
+    tsb-operator-data-plane --replicas=0
+kubectl -n istio-gateway delete \
+    istiooperators.install.istio.io --all
+kubectl -n istio-gateway delete deployment --all
+```
+
+Clean up the validation and mutation webhooks for the data planes:
+
+```bash
+kubectl delete \
+    validatingwebhookconfigurations.admissionregistration.k8s.io \
+    tsb-operator-data-plane-egress \
+    tsb-operator-data-plane-ingress \
+    tsb-operator-data-plane-tier1
+kubectl delete \
+    mutatingwebhookconfigurations.admissionregistration.k8s.io \
+    tsb-operator-data-plane-egress \
+    tsb-operator-data-plane-ingress \
+    tsb-operator-data-plane-tier1
+```
+
+Delete IstioOperator for the control planes:
+
+```bash
+kubectl delete controlplanes.install.tetrate.io --all --all-namespaces
+```
+
+Clean up the validation and mutation webhooks for the control planes:
+
+```bash
+kubectl delete \
+    validatingwebhookconfigurations.admissionregistration.k8s.io \
+    tsb-operator-control-plane
+kubectl delete \
+    mutatingwebhookconfigurations.admissionregistration.k8s.io \
+    tsb-operator-control-plane
+kubectl delete \
+    validatingwebhookconfigurations.admissionregistration.k8s.io \
+    xcp-edge-istio-system
+```
+
+Delete the `xcp-multicluster` namespace: (TODO)
+
+```bash
+kubectl delete ns xcp-multicluster
+```
+
+Clean up cluster-scoped resources: (TODO)
+
+```bash
+tctl install manifest cluster-operators --registry=dummy | \
+    kubectl delete -f - --ignore-not-found
+kubectl delete clusterrole xcp-operator-edge
+kubectl delete clusterrolebinding xcp-operator-edge
+```
+
+Clean up the control plane CRDs:
+
+```bash
+
+```
+
 
 Clean up the application namespace:
 
