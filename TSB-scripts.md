@@ -28,32 +28,39 @@ Configure `demo-scripts/variables/coreos.env`
 
 ## Management Plane
 
-Deploy Management Plane and create the `tsb-certs` secret
+Deploy Management Plane: 
+
 ```bash
-# (If this command hangs, then delete the clusterissuer)
 ./demo-scripts/deployment/01-deploy-management-plane.sh coreos
 ```
 
 
 ## Control Plane
+
+Generate the script to deploy the control plane: 
+
 ```bash
  ./demo-scripts/deployment/02a-manual-deploy-cp.sh coreos 0
 ```
 
 To deploy the actual manifests on the CP
-```
-sudo cat /tmp/command-tetrate-mp-cp.sh
-# apply this ^
+
+```bash
+bash /tmp/command-tetrate.sh
 ```
 
-If you get an error in the tsb operator in  istio-system
-
+Watch the logs of the TSB Operator while the control plane installs:
+```bash
+k logs -n istio-system -l name=tsb-operator
 ```
+
+If you get a cert-manager error
+
+```bash 
 2022-09-01T18:42:17.635024Z     error   controller.controlplane-controller      Reconciler error        {"name": "controlplane", "namespace": "istio-system", "error": "cert-manager already installed but not owned by tsb operator. Try setting managed: EXTERNAL"}
 ```
 
-
-Do this:
+Patch  the control plane operator to set the cert-manager as externally managed:
 
 ```bash
 kubectl -n istio-system patch controlplanes.install.tetrate.io controlplane --type='json' -p='[{"op": "add", "path": "/spec/components/internalCertProvider/certManager", "value": {"managed": "EXTERNAL"}}]'
@@ -113,62 +120,129 @@ kubectl delete \
     xcp-edge-istio-system
 ```
 
-Delete the `xcp-multicluster` namespace: (TODO)
+Delete the deployments in the control plane:
 
 ```bash
-kubectl delete ns xcp-multicluster
+kubectl  delete deploy -n istio-system --all --force 
 ```
+
+Delete the Cluster 
+
+```bash
+tctl delete cluster tetrate
+```
+
+Delete the Tenant
+
+```bash
+tctl delete tenant partner-validation-tenant
+```
+
 
 Clean up cluster-scoped resources: (TODO)
 
 ```bash
-tctl install manifest cluster-operators --registry=dummy | \
-    kubectl delete -f - --ignore-not-found
 kubectl delete clusterrole xcp-operator-edge
 kubectl delete clusterrolebinding xcp-operator-edge
+```
+
+Clean up management plane cr: 
+
+```bash
+kubectl -n tsb delete managementplanes.install.tetrate.io --all
+```
+
+Clean up management plane operator:
+
+```bash
+kubectl -n tsb delete deployment tsb-operator-management-plane
+```
+
+Clean up the validation and mutation webhooks for the management plane:
+
+```bash
+kubectl delete \
+    validatingwebhookconfigurations.admissionregistration.k8s.io \
+    tsb-operator-management-plane
+kubectl delete \
+    mutatingwebhookconfigurations.admissionregistration.k8s.io \
+    tsb-operator-management-plane
+kubectl delete \
+    validatingwebhookconfigurations.admissionregistration.k8s.io \
+    xcp-central-tsb
+kubectl delete \
+    mutatingwebhookconfigurations.admissionregistration.k8s.io \
+    xcp-central-tsb
 ```
 
 Clean up the control plane CRDs:
 
 ```bash
+kubectl delete crd \
+    clusters.xcp.tetrate.io \
+    controlplanes.install.tetrate.io \
+    edgexcps.install.xcp.tetrate.io \
+    egressgateways.gateway.xcp.tetrate.io \
+    egressgateways.install.tetrate.io \
+    gatewaygroups.gateway.xcp.tetrate.io \
+    globalsettings.xcp.tetrate.io \
+    ingressgateways.gateway.xcp.tetrate.io \
+    ingressgateways.install.tetrate.io \
+    securitygroups.security.xcp.tetrate.io \
+    securitysettings.security.xcp.tetrate.io \
+    servicedefinitions.registry.tetrate.io \
+    serviceroutes.traffic.xcp.tetrate.io \
+    tier1gateways.gateway.xcp.tetrate.io \
+    tier1gateways.install.tetrate.io \
+    trafficgroups.traffic.xcp.tetrate.io \
+    trafficsettings.traffic.xcp.tetrate.io \
+    workspaces.xcp.tetrate.io \
+    workspacesettings.xcp.tetrate.io \
+    --ignore-not-found
+```
 
+Clean up the management plane CRDs:
+
+```bash
+kubectl delete crd \
+    centralxcps.install.xcp.tetrate.io \
+    clusters.xcp.tetrate.io \
+    egressgateways.gateway.xcp.tetrate.io \
+    egressgateways.install.tetrate.io \
+    gatewaygroups.gateway.xcp.tetrate.io \
+    globalsettings.xcp.tetrate.io \
+    ingressgateways.gateway.xcp.tetrate.io \
+    ingressgateways.install.tetrate.io \
+    managementplanes.install.tetrate.io \
+    securitygroups.security.xcp.tetrate.io \
+    securitysettings.security.xcp.tetrate.io \
+    servicedefinitions.registry.tetrate.io \
+    serviceroutes.traffic.xcp.tetrate.io \
+    tier1gateways.gateway.xcp.tetrate.io \
+    tier1gateways.install.tetrate.io \
+    trafficgroups.traffic.xcp.tetrate.io \
+    trafficsettings.traffic.xcp.tetrate.io \
+    workspaces.xcp.tetrate.io \
+    workspacesettings.xcp.tetrate.io
 ```
 
 
 Clean up the application namespace:
 
 ```bash
-# TSB resources
-kubectl delete ingressgateway tsb-gateway-bookinfo -n bookinfo
-
-# Istio Resources
-kubectl delete gw,envoyfilter,sidecar,vs,net-attach-def --all -n bookinfo
-
 # Kubernetes Resources
 kubectl delete deploy,rolebinding,role --all --force --grace-period=0 -n bookinfo
 
 # Secondary Kubernetes Resources
 kubectl delete endpointslice,ep,svc,sa,secret,podmetrics,cm,hpa,poddisruptionbudget,po -n bookinfo --all --force --grace-period=0 -n bookinfo
-
-# Delete the namespace
-kubectl delete ns bookinfo
 ```
 
 
 Clean up the Data Plane:
 
 ```bash
-# TSB resources & you may need to remove finalizer first
-kubectl delete istiooperator --all -n istio-gateway
-
-# Kubernetes Resources
-kubectl delete deploy,rolebinding,role,sa --all -n istio-gateway
-
 # Secondary Kubernetes Resources
 kubectl delete po,cm,secret,svc,ep,lease,endpointslice,podmetrics,job,cronjob --all --force --grace-period=0 -n istio-gateway
-
-# Delete the namespace
-kubectl delete ns istio-gateway
 ```
 
 Clean up the Control Plane:
@@ -176,7 +250,7 @@ Clean up the Control Plane:
 ```bash
 # TSB Resources & manually remove finalizer from istiooperator
 # xcp-edge-internal edge-validation
-kubectl delete controlplane,gatewaygroup,istiooperator,edgexcp,workspace,edgedirectory --all -n istio-system
+kubectl delete lease,controlplane,gatewaygroup,istiooperator,edgexcp,workspace,edgedirectory --all -n istio-system
 
 # Network Resource
 kubectl delete net-attach-def --all -n istio-system
@@ -193,8 +267,6 @@ kubectl delete deploy --all -n istio-system
 # Secondary Kubernetes Resources
 kubectl delete po,svc,ep,sa,hpa,rolebinding,role,hpa,endpointslice,podmetrics,poddisruptionbudget,job,cronjob --force --grace-period=0 --all -n istio-system
 
-# Delete the namespace
-kubectl delete ns istio-system
 ```
 
 Clean Up the Management Plane:
@@ -211,9 +283,6 @@ kubectl delete deploy,netpol --all -n tsb
 
 # Secondary Kubernetes Resources
 kubectl delete po,cm,ep,pvc,route,svc,rolebinding,role,svc,sa,job,secret,cronjob,podmetrics --force --grace-period=0 --all -n tsb
-
-# Delete the namespace
-kubectl delete ns tsb
 ```
 
 Clean Up the xcp-multicluster namespace:
@@ -224,9 +293,6 @@ kubectl delete dr,se --all -n xcp-multicluster
 
 # Kubernetes Resources
 kubectl delete cm,secret,sa,role,rolebinding,po,job,cronjob --force --grace-period=0  --all -n xcp-multicluster
-
-# Delete the namespace
-kubectl delete ns xcp-multicluster
 ```
 
 
@@ -241,9 +307,6 @@ kubectl delete deploy,ep,endpointslice,podmetrics --all  -n cert-manager
 
 # Secondary Kubernetes Resources
 kubectl delete cm,secret,sa,role,rolebinding,po,job,cronjob --all --force --grace-period=0 -n cert-manager
-
-# Delete the namespace
-kubectl delete ns cert-manager
 ```
 
 
