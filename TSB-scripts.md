@@ -1,30 +1,41 @@
 # TSB Install via Scripts
 
 - [Sync Images](#sync-images)
-- [Script Prereqs](#script-prereqs)
+- [Prereqs](#prereqs)
 - [Management Plane](#management-plane)
 - [Control Plane](#control-plane)
 - [Clean Up](#clean-up)
 
 ## Sync Images
 
+The first step of using TSB is syncing the images to your own personal image repository. These step is already done for Red Hat's work with Tetrate. _You can skip this step._
+
 - Make sure `demo-scripts/deployment/00-download.sh` has your repo under `REPO` on line 3.
 
-- Copy `credentials.md` to `~/credentials.env` and ensure `APIUSER` and `APIKEY` are adjusted according to the credentials given by Tetrate. `OC_PASSWORDS` should be the OCP kubeadmin passwords.
-
-Run script to pull images and push to your personal image repo
+Run script to pull images and push to your personal image repo:
 
 ```bash
 ./demo-scripts/deployment/00-download.sh coreos
 ```
 
-## Script Prereqs
+## Prereqs
+
+Configure credentials and prepare scripts to run   
+
+We are running TSB on a single cluster for now, therefor the `OC_PASSWORDS`, `CLUSTER_LIST` will have on element on the array, leave the second array element as to preserve the structure of the files.
+
+- Copy the `bash` section of `credentials.md` to `~/credentials.env` and ensure `APIUSER` and `APIKEY` are adjusted according to the credentials given by Tetrate. `OC_PASSWORDS` should be the OCP kubeadmin passwords.
 
 Configure `demo-scripts/variables/coreos.env`
 
-- line 11 should be the Clusters names (Management Plane and Remote Control Plane ).
-- line 27 should be the OCP kubeadmin passwords in an array.
+- line 11 should be the Clusters names, obtained by:
+   -  `kubectl config current-context`
+   - `kubectl config get-context -oname`
+- line 14 is the DNS_DOMAIN, obtained by: 
+   -  `kubectl get ingress.config/cluster --template='{{ .spec.domain }}'`
+- line 24 should be the OCP kubeadmin passwords in an array. (again, only the first element)
 
+Download and install [tctl](https://docs.tetrate.io/service-bridge/1.5.x/en-us/reference/cli/guide/index#installation)
 
 ## Management Plane
 
@@ -34,6 +45,7 @@ Deploy Management Plane:
 ./demo-scripts/deployment/01-deploy-management-plane.sh coreos
 ```
 
+- line 12 of `demo-scripts/deployment/01-deploy-management-plane.sh` shows the images are being pulled from my personal repository, this is okay, keep this.
 
 ## Control Plane
 
