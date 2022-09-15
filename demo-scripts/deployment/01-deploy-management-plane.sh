@@ -9,8 +9,7 @@ source "$ROOT"/helpers/functions.sh >/dev/null
 echo "Parsing yaml's"
 source "$ROOT"/helpers/parser.sh >/dev/null
 
-REPO_MP="docker.io/cmwylie19"
-export REPO_MP
+export REPO_MP="docker.io/cmwylie19"
 export clusterNumber=${MP_CLUSTER}
 export clusterlabel="tsb-mp-cp"
 
