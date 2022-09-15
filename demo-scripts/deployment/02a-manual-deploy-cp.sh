@@ -85,7 +85,7 @@ read -r -d '' CONNECT_COMMAND << EOM
 oc login https://api.${CLUSTER}.${DNS_DOMAIN}:6443 -u kubeadmin -p ${OC_PASSWORDS[$clusterNumber]}
 EOM
 cat <<EOF > /tmp/command-${CLUSTER}.sh
-echo **** MAKE sure you're in the CORRECT cluster (${CLUSTER}) CONTEXT ***
+# echo **** MAKE sure you're in the CORRECT cluster (${CLUSTER}) CONTEXT ***
 $CONNECT_COMMAND
 # creating namespace
   oc create namespace istio-system

@@ -1,30 +1,44 @@
 # TSB Install via Scripts
 
+
 - [Sync Images](#sync-images)
-- [Script Prereqs](#script-prereqs)
+- [Prereqs](#prereqs)
 - [Management Plane](#management-plane)
 - [Control Plane](#control-plane)
+- [Validate](#validate)
 - [Clean Up](#clean-up)
 
 ## Sync Images
 
+- IGNORE THIS, continue to prereqs!! - 
+
+The first step of using TSB is syncing the images to your own personal image repository. These step is already done for Red Hat's work with Tetrate. _You can skip this step._
+
 - Make sure `demo-scripts/deployment/00-download.sh` has your repo under `REPO` on line 3.
 
-- Copy `credentials.md` to `~/credentials.env` and ensure `APIUSER` and `APIKEY` are adjusted according to the credentials given by Tetrate. `OC_PASSWORDS` should be the OCP kubeadmin passwords.
-
-Run script to pull images and push to your personal image repo
+Run script to pull images and push to your personal image repo:
 
 ```bash
 ./demo-scripts/deployment/00-download.sh coreos
 ```
 
-## Script Prereqs
+## Prereqs
+
+Configure credentials and prepare scripts to run   
+
+We are running TSB on a single cluster for now, therefor the `OC_PASSWORDS`, `CLUSTER_LIST` will have on element on the array, leave the second array element as to preserve the structure of the files.
+
+- Copy the `bash` section of `credentials.md` to `~/credentials.env` and ensure `APIUSER` and `APIKEY` are adjusted according to the credentials given by Tetrate. `OC_PASSWORDS` should be the OCP kubeadmin passwords.
 
 Configure `demo-scripts/variables/coreos.env`
 
-- line 11 should be the Clusters names (Management Plane and Remote Control Plane ).
-- line 27 should be the OCP kubeadmin passwords in an array.
+- line 11 should be the Clusters names according to the ingress, obtained by (this must be precise):
+   -  `kubectl get ingresses.config/cluster --template='{{.spec.domain}}' | sed 's/apps.//g' | cut -f1 -d"."`
+- line 14 is the DNS_DOMAIN, obtained by: 
+   -  `kubectl get ingresses.config/cluster --template='{{.spec.domain}}' | sed 's/apps.//g' | cut -f2-4 -d"."`
+- line 24 should be the OCP kubeadmin passwords in an array. (again, only the first element)
 
+Download and install [tctl](https://docs.tetrate.io/service-bridge/1.5.x/en-us/reference/cli/guide/index#installation), make sure you are installing `1.5.0` so that the images that have been pushed work correctly.
 
 ## Management Plane
 
@@ -33,6 +47,26 @@ Deploy Management Plane:
 ```bash
 ./demo-scripts/deployment/01-deploy-management-plane.sh coreos
 ```
+
+- line 12 of `demo-scripts/deployment/01-deploy-management-plane.sh` shows the images are being pulled from my personal repository, this is okay, **keep this**.
+
+At the end of the running this script, you will see an output similar to the following:
+
+```bash
+==========================
+TSB UI Access
+--------------------------
+
+https://tsb.apps.gcp-mgmt1-cwylie.fsi-env2.rhecoeng.com
+
+Credentials are admin/Tetrate1
+```
+
+- Go to the URL in the browser and see **Your connection is not private** warning
+- click on the background of the webpage
+- type "thisisunsafe"
+- sign in with admin and Tetrate1
+
 
 
 ## Control Plane
@@ -43,28 +77,50 @@ Generate the script to deploy the control plane:
  ./demo-scripts/deployment/02a-manual-deploy-cp.sh coreos 0
 ```
 
-To deploy the actual manifests on the CP
+The output after running the above script will show:
 
 ```bash
-bash /tmp/command-tetrate.sh
+Examine file /tmp/command-xxxx.sh and apply commands accordingly
 ```
 
-Watch the logs of the TSB Operator while the control plane installs:
+To deploy the actual manifests on the CP, run the shell script
+
 ```bash
-k logs -n istio-system -l name=tsb-operator
+bash /tmp/command-xxxx.sh
 ```
 
-If you get a cert-manager error
+Watch the logs of the TSB Operator while the control plane installs, there will be errors at first and the operator will restart, keep watching:
+
+```bash
+kubectl logs -n istio-system -l name=tsb-operator -f
+```
+
+If you get a cert-manager error, (which you will):
 
 ```bash 
 2022-09-01T18:42:17.635024Z     error   controller.controlplane-controller      Reconciler error        {"name": "controlplane", "namespace": "istio-system", "error": "cert-manager already installed but not owned by tsb operator. Try setting managed: EXTERNAL"}
 ```
 
-Patch  the control plane operator to set the cert-manager as externally managed:
+Patch  the control plane operator to set the cert-manager as externally managed (in a new tab while the script continues to run):
 
 ```bash
 kubectl -n istio-system patch controlplanes.install.tetrate.io controlplane --type='json' -p='[{"op": "add", "path": "/spec/components/internalCertProvider/certManager", "value": {"managed": "EXTERNAL"}}]'
 ```
+
+After the script runs you should be fully installed.
+
+
+## Validate
+
+- Go to the UI
+- on the left side, under "Tenant", click "Dashboard"
+- click "SELECT CLUSTER-NAMESPACES"
+- under tenant, select "partner-validation-tenant", namespace "bookinfo", select the box
+- click select
+
+You should see:
+
+![ui](ui.png)
 
 ## Clean Up
 

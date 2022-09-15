@@ -285,6 +285,7 @@ function connectToCluster() {
     internalPLATFORM=${CLUSTER_PLATFORM[${internalClusterNumber}]}
     internalCLUSTER=${CLUSTER_LIST[$internalClusterNumber]}
     internalREGION=${REGION_LIST[$internalClusterNumber]}
+
     if [[ $internalPLATFORM == "gcp" ]]; then
         echo "Connecting to GKE cluster ${internalCLUSTER}"
         CLUSTER_EXISTS=$(gcloud container clusters list --project "${GCP_PROJECT}" --region "${internalREGION}" --filter NAME="${internalCLUSTER}" | wc -l)
