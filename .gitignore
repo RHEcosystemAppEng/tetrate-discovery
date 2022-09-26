@@ -9,3 +9,4 @@ demo-scripts/helpers/tsb/
 *.pem
 *.cnf
 *.csr
+demo-scripts/variables/coreos.env
