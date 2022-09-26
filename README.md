@@ -26,11 +26,11 @@ Run script to pull images and push to your personal image repo:
 
 Configure credentials and prepare scripts to run   
 
-We are running TSB on a single cluster for now, therefore the `OC_PASSWORDS`, `CLUSTER_LIST` will have on element in the array, leave the second array element as is to preserve the structure of the files.
-
 - Copy the `bash` section of `credentials.md` to `~/credentials.env` and ensure `APIUSER` and `APIKEY` are adjusted according to the credentials given by Tetrate. `OC_PASSWORDS` should be the OpenShift kubeadmin passwords.
 
 Configure `demo-scripts/variables/coreos.env`
+
+We are running TSB on a single cluster for now, therefore the `OC_PASSWORDS`, `CLUSTER_LIST` will have on element in the array, leave the second array element as is to preserve the structure of the files.
 
 - line 11 should be the Clusters names according to the ingress, obtained by (this must be precise):
    -  `kubectl get ingresses.config/cluster --template='{{.spec.domain}}' | sed 's/apps.//g' | cut -f1 -d"."`
