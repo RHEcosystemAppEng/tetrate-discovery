@@ -34,7 +34,7 @@ We are running TSB on a single cluster for now, therefore the `OC_PASSWORDS`, `C
 
 - line 11 should be the Clusters names according to the ingress, obtained by (this must be precise):
    -  `kubectl get ingresses.config/cluster --template='{{.spec.domain}}' | sed 's/apps.//g' | cut -f1 -d"."`
-- line 14 is the DNS_DOMAIN, obtained by (this must be precise): 
+- line 15 is the DNS_DOMAIN, obtained by (this must be precise): 
    -  `kubectl get ingresses.config/cluster --template='{{.spec.domain}}' | sed 's/apps.//g' | cut -f2-4 -d"."`
 - line 24 should be the OCP kubeadmin passwords in an array. (again, only the first element)
 
